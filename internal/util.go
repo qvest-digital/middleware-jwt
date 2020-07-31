@@ -1,4 +1,4 @@
-package middleware-jwt
+package main
 
 import (
 	"net/http"

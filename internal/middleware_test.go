@@ -1,4 +1,4 @@
-package middleware-jwt
+package main
 
 //go:generate mockgen -destination=mocks/http.go net/http Handler
 
