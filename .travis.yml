@@ -5,13 +5,9 @@ go:
   - "1.13"
   - master
 
-# Allow builds from tip to fail - they might be in an unstable state
 jobs:
   allow_failures:
     - go: master
-
-env:
-  - GO111MODULE=on
 
 before_install:
   - go get github.com/wadey/gocovmerge
