@@ -1,4 +1,4 @@
-# tarent/middleware-jwt [![Build Status](https://travis-ci.org/github/tarent/middleware-jwt.svg)](https://travis-ci.org/github/tarent/middleware-jwt)
+# tarent/middleware-jwt [![Build Status](https://api.travis-ci.com/tarent/middleware-jwt.svg)](https://travis-ci.com/github/tarent/middleware-jwt)
 
 `middleware-jwt` provides JWT authentication for Go. It is compatible with Go's own `net/http` and anything that speaks the `http.Handler` interface.
 
