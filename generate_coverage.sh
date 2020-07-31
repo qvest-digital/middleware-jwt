@@ -1,7 +1,7 @@
 #!/bin/bash -e
 # Requires installation of: `github.com/wadey/gocovmerge`
 
-cd $GOPATH/src/github.com/tarent/loginsrv
+cd $GOPATH/src/github.com/tarent/middleware_jwt
 
 rm -rf ./cov
 mkdir cov
@@ -16,4 +16,4 @@ do
 done
 
 gocovmerge ./cov/*.out > full_cov.out
-rm -rf ./co
+rm -rf ./cov
