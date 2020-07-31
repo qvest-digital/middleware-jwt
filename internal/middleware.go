@@ -69,8 +69,14 @@ func (m *jwtMiddleware) Handler(next http.Handler) http.Handler {
 			return
 		}
 
+		if !token.Valid {
+			log.Error("JWT is invalid")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
 		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok || !token.Valid {
+		if !ok {
 			log.Error("JWT has no claims")
 			w.WriteHeader(http.StatusUnauthorized)
 			return

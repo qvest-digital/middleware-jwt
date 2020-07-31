@@ -35,6 +35,11 @@ func TestHandlerAnyGroup(t *testing.T) {
 			shouldCallNext: true,
 		},
 		{
+			name:   "JWT is expired",
+			auth:   "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZXhwIjoxNTE2MjM5MDIzLCJuYW1lIjoiSm9obiBEb2UiLCJncm91cHMiOlsiZ3JvdXBBIiwiZ3JvdXBCIl0sImlhdCI6MTUxNjIzOTAyMn0.pbsRS5wUW4Xkl6tcHU1H3hLkdTPWt9dWgESdy-PcFc4",
+			status: http.StatusUnauthorized,
+		},
+		{
 			name:   "Malformed JWT",
 			auth:   "Bearer ",
 			status: http.StatusUnauthorized,
