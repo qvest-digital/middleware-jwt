@@ -4,7 +4,7 @@
 
 ## Examples
 
-See the examples folder for working examples.
+See the `examples` folder for working examples.
 
 ## Installation
 
@@ -12,16 +12,14 @@ See the examples folder for working examples.
 $ go get github.com/tarent/middleware-jwt
 ```
 
-
 ## Usage
 
 Since it's all `http.Handler`, `middleware-jwt` works with [gorilla/mux](https://github.com/gorilla/mux) and most other routers.
 
+
 ### Basic usage
 
-[Simple example](File:examples/gorilla/simple/main.go)
-
-To run this example execute:
+To run the simple example execute:
 ```sh
 go run examples/gorilla/simple/main.go
 ```
@@ -35,12 +33,7 @@ curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiO
 
 For complex authentication scenarios, you can access the "claims" in the http context which is passed to the subsequent http handlers. This allows you to:
 
-[Advanced example](File:examples/gorilla/advanced/main.go)
-
-
-[Simple example](File:examples/gorilla/simple/main.go)
-
-To run this example execute:
+To run the advanced example execute:
 ```sh
 go run examples/gorilla/advanced/main.go
 ```

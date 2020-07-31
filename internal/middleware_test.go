@@ -20,7 +20,7 @@ type testCase struct {
 	shouldCallNext bool
 }
 
-func TestHandler(t *testing.T) {
+func TestHandlerAnyGroup(t *testing.T) {
 
 	a := assert.New(t)
 
@@ -82,7 +82,58 @@ func TestHandler(t *testing.T) {
 		// when: handler is called
 		subj(handlerMock).ServeHTTP(rr, req)
 
-		// then: 401
+		// then: correct status code is returned
+		a.Equal(v.status, rr.Code, "Wrong status code")
+
+		ctrl.Finish()
+	}
+
+}
+
+func TestHandlerAllowAll(t *testing.T) {
+
+	a := assert.New(t)
+
+	// given: test subject
+	subj := JwtAuthAllowAll("mysecret")
+
+	testCases := []testCase{
+		{
+			name:           "happy path",
+			auth:           "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZ3JvdXBzIjpbImdyb3VwQSIsImdyb3VwQiJdLCJpYXQiOjE1MTYyMzkwMjJ9.pPJGnFh4FUJnIcnReZlrrraG0Ep_bqEadYo6iH4KdHY",
+			status:         http.StatusOK,
+			shouldCallNext: true,
+		},
+		{
+			name:           "no groups",
+			auth:           "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZ3JvdXBzIjpbXSwiaWF0IjoxNTE2MjM5MDIyfQ.TLxPs_rZJbcTOfFD2XPYR2Lr6mkaJvRMTMi0usBd_B0",
+			status:         http.StatusOK,
+			shouldCallNext: true,
+		},
+	}
+
+	// for each test case
+	for _, v := range testCases {
+
+		fmt.Println("Running test case: " + v.name)
+
+		ctrl := gomock.NewController(t)
+
+		// and: test request with JWT
+		req, _ := http.NewRequest("GET", "/", nil)
+		req.Header.Set("Authorization", v.auth)
+		rr := httptest.NewRecorder()
+
+		// and: http.Handler mock
+		handlerMock := mocks.NewMockHandler(ctrl)
+		if v.shouldCallNext {
+			handlerMock.EXPECT().ServeHTTP(gomock.Any(), gomock.Any())
+		}
+
+		// when: handler is called
+		subj(handlerMock).ServeHTTP(rr, req)
+
+		// then: correct status code is returned
 		a.Equal(v.status, rr.Code, "Wrong status code")
 
 		ctrl.Finish()

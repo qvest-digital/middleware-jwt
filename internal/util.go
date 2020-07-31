@@ -9,13 +9,7 @@ import (
 
 func GetGroupsFromAuthenticatedRequest(r *http.Request) []string {
 
-	ctx := r.Context()
-	if ctx == nil {
-		logrus.Error("Could not get groups from request: no context available")
-		return []string{}
-	}
-
-	claims, ok := ctx.Value("claims").(jwtgo.MapClaims)
+	claims, ok := r.Context().Value("claims").(jwtgo.MapClaims)
 	if !ok {
 		logrus.Error("Could not get claims from context: cast failed")
 		return []string{}
