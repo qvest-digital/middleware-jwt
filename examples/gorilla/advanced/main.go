@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	jwt "github.com/tarent/middleware-jwt/internal"
+	jwt "github.com/tarent/middleware-jwt"
 )
 
 func main() {

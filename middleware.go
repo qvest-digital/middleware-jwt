@@ -1,4 +1,4 @@
-package middleware-jwt
+package middleware
 
 import (
 	"context"
@@ -20,7 +20,7 @@ func JwtAuthAllowAll(jwtSecret string) func(http.Handler) http.Handler {
 		jwtSecret:     []byte(jwtSecret),
 		allowedGroups: []string{},
 	}
-	return middleware.Handler
+	return middleware.handler
 }
 
 func JwtAuthAnyGroup(jwtSecret string, allowedGroups ...string) func(http.Handler) http.Handler {
@@ -28,7 +28,7 @@ func JwtAuthAnyGroup(jwtSecret string, allowedGroups ...string) func(http.Handle
 		jwtSecret:     []byte(jwtSecret),
 		allowedGroups: allowedGroups,
 	}
-	return middleware.Handler
+	return middleware.handler
 }
 
 func (m *jwtMiddleware) parseFunc(token *jwt.Token) (interface{}, error) {
@@ -39,7 +39,7 @@ func (m *jwtMiddleware) parseFunc(token *jwt.Token) (interface{}, error) {
 	return m.jwtSecret, nil
 }
 
-func (m *jwtMiddleware) Handler(next http.Handler) http.Handler {
+func (m *jwtMiddleware) handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		log := logrus.

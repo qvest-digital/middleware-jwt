@@ -1,4 +1,4 @@
-package middleware-jwt
+package middleware
 
 //go:generate mockgen -destination=mocks/http.go net/http Handler
 
@@ -10,7 +10,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	mocks "github.com/tarent/middleware-jwt/internal/mocks"
+	mocks "github.com/tarent/middleware-jwt/mocks"
 )
 
 type testCase struct {

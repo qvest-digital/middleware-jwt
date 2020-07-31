@@ -1,15 +1,15 @@
-package middleware-jwt
+package middleware
 
 import (
 	"net/http"
 
-	jwtgo "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 )
 
 func GetGroupsFromAuthenticatedRequest(r *http.Request) []string {
 
-	claims, ok := r.Context().Value("claims").(jwtgo.MapClaims)
+	claims, ok := r.Context().Value("claims").(jwt.MapClaims)
 	if !ok {
 		logrus.Error("Could not get claims from context: cast failed")
 		return []string{}
