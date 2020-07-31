@@ -25,7 +25,7 @@ func TestHandler(t *testing.T) {
 	a := assert.New(t)
 
 	// given: test subject
-	subj := NewJwtMiddleware("mysecret", []string{"groupB"})
+	subj := JwtAuthAnyGroup("mysecret", "groupB")
 
 	testCases := []testCase{
 		{
@@ -80,7 +80,7 @@ func TestHandler(t *testing.T) {
 		}
 
 		// when: handler is called
-		subj.Handler(handlerMock).ServeHTTP(rr, req)
+		subj(handlerMock).ServeHTTP(rr, req)
 
 		// then: 401
 		a.Equal(v.status, rr.Code, "Wrong status code")
@@ -94,14 +94,14 @@ func TestHandlerMissingJWTCookie(t *testing.T) {
 	a := assert.New(t)
 
 	// given: test subject
-	subj := NewJwtMiddleware("mysecret", []string{})
+	subj := JwtAuthAnyGroup("mysecret")
 
 	// and: test request with empty JWT
 	req, _ := http.NewRequest("GET", "/", nil)
 	rr := httptest.NewRecorder()
 
 	// when: handler is called
-	subj.Handler(nil).ServeHTTP(rr, req)
+	subj(nil).ServeHTTP(rr, req)
 
 	// then: 401
 	a.Equal(http.StatusUnauthorized, rr.Code, "Wrong status code")

@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"strings"
@@ -14,11 +15,20 @@ type jwtMiddleware struct {
 	allowedGroups []string
 }
 
-func NewJwtMiddleware(jwtSecret string, allowedGroups []string) *jwtMiddleware {
-	return &jwtMiddleware{
+func JwtAuthAllowAll(jwtSecret string) func(http.Handler) http.Handler {
+	middleware := jwtMiddleware{
+		jwtSecret:     []byte(jwtSecret),
+		allowedGroups: []string{},
+	}
+	return middleware.Handler
+}
+
+func JwtAuthAnyGroup(jwtSecret string, allowedGroups ...string) func(http.Handler) http.Handler {
+	middleware := jwtMiddleware{
 		jwtSecret:     []byte(jwtSecret),
 		allowedGroups: allowedGroups,
 	}
+	return middleware.Handler
 }
 
 func (m *jwtMiddleware) parseFunc(token *jwt.Token) (interface{}, error) {
@@ -32,11 +42,14 @@ func (m *jwtMiddleware) parseFunc(token *jwt.Token) (interface{}, error) {
 func (m *jwtMiddleware) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		log := logrus.WithField("remoteAddress", r.RemoteAddr)
+		log := logrus.
+			WithField("remoteAddress", r.RemoteAddr).
+			WithField("URI", r.RequestURI).
+			WithField("method", r.Method)
 
 		header := r.Header.Get("Authorization")
 		if len(header) == 0 {
-			log.Error("JWT Bearer token not found")
+			log.Error("JWT Bearer token not present")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -51,7 +64,7 @@ func (m *jwtMiddleware) Handler(next http.Handler) http.Handler {
 		token, err := jwt.Parse(parts[1], m.parseFunc)
 		if err != nil {
 			log.WithField("err", err).
-				Error("JWT error")
+				Error("JWT parse error")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -65,48 +78,21 @@ func (m *jwtMiddleware) Handler(next http.Handler) http.Handler {
 
 		roles, ok := claims["groups"]
 		if !ok {
-			log.Error("Missing groups claim")
+			log.Error("Missing \"groups\" claim")
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 
-		if !m.hasAnyGroup(roles, m.allowedGroups) {
-			log.Error("JWT missing required group")
+		if !hasAnyGroup(roles, m.allowedGroups) {
+			log.Error("JWT has none of the allowed groups")
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		// Add claims to HTTP context
+		ctx := context.WithValue(r.Context(), interface{}("claims"), claims)
+
+		// Call next handler
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-}
-
-func (m *jwtMiddleware) hasAnyGroup(groups interface{}, required []string) bool {
-	stringGroups := []string{}
-
-	casted, ok := groups.([]interface{})
-	if !ok {
-		logrus.WithField("groups", groups).
-			Error("Error casting groups to array")
-		return false
-	}
-
-	for _, v := range casted {
-		s, ok := v.(string)
-		if ok {
-			stringGroups = append(stringGroups, string(s))
-		}
-	}
-
-	return m.contains(stringGroups, required)
-}
-
-func (m *jwtMiddleware) contains(have []string, required []string) bool {
-	for _, v1 := range have {
-		for _, v2 := range required {
-			if v1 == v2 {
-				return true
-			}
-		}
-	}
-	return false
 }
